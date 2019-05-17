@@ -522,7 +522,7 @@ if( $retain_fmt ) {
 my ( $script_dir ) = $0 =~ m/^(.*)\/vcf2maf/;
 $script_dir = "." unless( $script_dir );
 
-my $entrez_id_file = "$script_dir/data/ensg_to_entrez_id_map_ensembl_feb2014.tsv";
+my $entrez_id_file = "$script_dir/data/ensg_to_entrez_id_map_ensembl96.tsv";
 my %entrez_id_map = ();
 if( -s $entrez_id_file ) {
     %entrez_id_map = map{chomp; split("\t")} `grep -hv ^# $entrez_id_file`;

@@ -189,7 +189,7 @@ unless( @ARGV and $ARGV[0] =~ m/^-/ ) {
 
 # Parse options and print usage if there is a syntax error, or if usage was explicitly requested
 my ( $man, $help ) = ( 0, 0 );
-my ( $input_vcf, $output_maf, $tmp_dir, $custom_enst_file );
+my ( $input_vcf, $output_maf, $tmp_dir, $custom_enst_file, $custom_gtf );
 my ( $vcf_tumor_id, $vcf_normal_id, $remap_chain );
 GetOptions(
     'help!' => \$help,
@@ -202,6 +202,7 @@ GetOptions(
     'vcf-tumor-id=s' => \$vcf_tumor_id,
     'vcf-normal-id=s' => \$vcf_normal_id,
     'custom-enst=s' => \$custom_enst_file,
+    'custom-gtf=s' => \$custom_gtf,
     'vep-path=s' => \$vep_path,
     'vep-data=s' => \$vep_data,
     'vep-forks=s' => \$vep_forks,
@@ -436,6 +437,9 @@ unless( -s $output_vcf ) {
 
     # Contruct VEP command using some default options and run it
     my $vep_cmd = "$perl_bin $vep_script --species $species --assembly $ncbi_build --no_progress --no_stats --buffer_size $buffer_size --sift b --ccds --uniprot --hgvs --symbol --numbers --domains --gene_phenotype --canonical --protein --biotype --uniprot --tsl --variant_class --shift_hgvs 1 --check_existing --total_length --allele_number --no_escape --xref_refseq --failed 1 --vcf --flag_pick_allele --pick_order canonical,tsl,biotype,rank,ccds,length --dir $vep_data --fasta $ref_fasta --format vcf --input_file $input_vcf --output_file $output_vcf";
+    if( $custom_gtf ) {
+        $vep_cmd .= " -custom $custom_gtf,customGTF,gtf -transcript_filter '_source_cache is customGTF'"
+    }
     # Change options based on whether we are running in offline mode or not
     $vep_cmd .= ( $online ? " --database --host useastdb.ensembl.org" : " --offline --pubmed" );
     # VEP barks if --fork is set to 1. So don't use this argument unless it's >1
@@ -1124,6 +1128,7 @@ __DATA__
  --vcf-tumor-id   Tumor sample ID used in VCF's genotype columns [--tumor-id]
  --vcf-normal-id  Matched normal ID used in VCF's genotype columns [--normal-id]
  --custom-enst    List of custom ENST IDs that override canonical selection
+ --custom-gtf     Path to custom GTF (overrides GTF from VEP cache)
  --vep-path       Folder containing the vep script [~/vep]
  --vep-data       VEP's base cache/plugin directory [~/.vep]
  --vep-forks      Number of forked processes to use when running VEP [4]

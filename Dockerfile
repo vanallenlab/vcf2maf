@@ -20,13 +20,14 @@ RUN cd $OPT/.vep \
     && perl $OPT_SRC/ensembl-vep/convert_cache.pl -species all -version all
 
 # prepare GTF for use (rename GENCODE chromosomes to match GRCh37, sort, index)
+SHELL ["/bin/bash", "-c"]
 RUN zcat $OPT/gtf/gencode.v30lift37.annotation.gtf.gz \
     | grep -v '^#' \
     | awk 'BEGIN {FS="\t"; OFS="\t"} {if ($1 == "chrM") {$1="MT"} else {sub(/^chr/, "", $1)}; print $0}' \
-    | sort -k1,1 -k2,2n -k3,3n -t$'\t' \
+    | sort -k1,1 -k4,4n -k5,5n -t$'\t' \
     | bgzip -c \
     > $OPT/gtf/gencode.v30lift37.renamed.gtf.gz \
-    && tabix -p $OPT/gtf/gencode.v30lift37.renamed.gtf.gz \
+    && tabix -p gff $OPT/gtf/gencode.v30lift37.renamed.gtf.gz \
     && rm $OPT/gtf/gencode.v30lift37.annotation.gtf.gz
 
 USER vep

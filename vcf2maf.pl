@@ -761,13 +761,13 @@ while( my $line = $annotated_vcf_fh->getline ) {
         my $maf_gene = $effect_with_gene_name->{SYMBOL} if( $effect_with_gene_name );
 
         # If that gene has a user-preferred isoform, report the effect on that isoform
-        ( $maf_effect ) = grep { $_->{SYMBOL} and $_->{SYMBOL} eq $maf_gene and $_->{Transcript_ID} and $custom_enst{$_->{Transcript_ID}} } @all_effects;
+        ( $maf_effect ) = grep { $_->{SYMBOL} and $_->{SYMBOL} eq $maf_gene and $_->{Transcript_ID} and $custom_enst{(split(/\./, $_->{Transcript_ID}, 2))[0]} } @all_effects;
 
         # If that gene has no user-preferred isoform, then use the VEP-preferred (canonical) isoform
         ( $maf_effect ) = grep { $_->{SYMBOL} and $_->{SYMBOL} eq $maf_gene and $_->{CANONICAL} and $_->{CANONICAL} eq "YES" } @all_effects unless( $maf_effect );
 
         # If that gene has no VEP-preferred isoform either, then choose the worst affected user-preferred isoform with a gene symbol
-        ( $maf_effect ) = grep { $_->{SYMBOL} and $_->{Transcript_ID} and $custom_enst{$_->{Transcript_ID}} } @all_effects unless( $maf_effect );
+        ( $maf_effect ) = grep { $_->{SYMBOL} and $_->{Transcript_ID} and $custom_enst{(split(/\./, $_->{Transcript_ID}, 2))[0]} } @all_effects unless( $maf_effect );
 
         # If none of the isoforms are user-preferred, then choose the worst affected VEP-preferred isoform with a gene symbol
         ( $maf_effect ) = grep { $_->{SYMBOL} and $_->{CANONICAL} and $_->{CANONICAL} eq "YES" } @all_effects unless( $maf_effect );

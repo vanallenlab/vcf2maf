@@ -436,9 +436,11 @@ unless( -s $output_vcf ) {
     ( -s $vep_script ) or die "ERROR: Cannot find VEP script in path: $vep_path\n";
 
     # Contruct VEP command using some default options and run it
-    my $vep_cmd = "$perl_bin $vep_script --species $species --assembly $ncbi_build --no_progress --no_stats --buffer_size $buffer_size --sift b --ccds --uniprot --hgvs --symbol --numbers --domains --gene_phenotype --canonical --protein --biotype --uniprot --tsl --variant_class --shift_hgvs 1 --check_existing --total_length --allele_number --no_escape --xref_refseq --failed 1 --vcf --flag_pick_allele --pick_order canonical,tsl,biotype,rank,ccds,length --dir $vep_data --fasta $ref_fasta --format vcf --input_file $input_vcf --output_file $output_vcf";
+    my $vep_cmd = "$perl_bin $vep_script --species $species --assembly $ncbi_build --no_progress --no_stats --buffer_size $buffer_size --hgvs --symbol --numbers --gene_phenotype --canonical --protein --biotype --tsl --variant_class --shift_hgvs 1 --check_existing --total_length --allele_number --no_escape --failed 1 --vcf --flag_pick_allele --pick_order canonical,tsl,biotype,rank,ccds,length --dir $vep_data --fasta $ref_fasta --format vcf --input_file $input_vcf --output_file $output_vcf";
     if( $custom_gtf ) {
-        $vep_cmd .= " -custom $custom_gtf,customGTF,gtf -transcript_filter '_source_cache is customGTF'"
+        $vep_cmd .= " -custom $custom_gtf,customGTF,gtf -transcript_filter '_source_cache is customGTF'";
+    } else {
+        $vep_cmd .= " --sift b --ccds --uniprot --domains --xref_refseq";
     }
     # Change options based on whether we are running in offline mode or not
     $vep_cmd .= ( $online ? " --database --host useastdb.ensembl.org" : " --offline --pubmed" );
@@ -451,7 +453,8 @@ unless( -s $output_vcf ) {
     # Add options that only work on human variants
     if( $species eq "homo_sapiens" ) {
         # Slight change in options if in offline mode, or if using the newer VEP
-        $vep_cmd .= " --polyphen b" . ( $vep_script =~ m/vep$/ ? " --af" : " --gmaf" );
+        $vep_cmd .= " --polyphen b" unless( $custom_gtf );
+        $vep_cmd .= ( $vep_script =~ m/vep$/ ? " --af" : " --gmaf" );
         $vep_cmd .= ( $vep_script =~ m/vep$/ ? " --af_1kg --af_esp --af_gnomad" : " --maf_1kg --maf_esp" ) unless( $online );
     }
     # Do not use the --regulatory option in situations where we know it will break

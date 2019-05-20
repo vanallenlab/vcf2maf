@@ -23,7 +23,7 @@ RUN zcat $OPT/gtf/gencode.v30lift37.annotation.gtf.gz \
 
 # download files needed for vcf2maf
 ENV VCF2MAF /opt/vcf2maf
-ENV VCF2MAF_COMMIT 9dceb9b580a9ca0c6f6d56f4ac042d716330cbe6
+ENV VCF2MAF_COMMIT 5a457604ac4f8063da08caea7b14df3d1c759d0b
 RUN mkdir -p $VCF2MAF/data
 ADD https://raw.githubusercontent.com/vanallenlab/vcf2maf/$VCF2MAF_COMMIT/vcf2maf.pl $VCF2MAF/
 ADD https://raw.githubusercontent.com/vanallenlab/vcf2maf/$VCF2MAF_COMMIT/data/ensg_to_entrez_id_map_ensembl96.tsv $VCF2MAF/data/
